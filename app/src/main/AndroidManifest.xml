@@ -80,6 +80,7 @@
         android:name=".pagers.ManyPagersActivity"
         android:launchMode="singleTop"
         android:theme="@style/AppTheme.NoActionBar"/>
+    <activity android:name=".basic_ima.BasicImaListActivity"/>
 
     <activity-alias
         android:name=".Launch"

@@ -31,6 +31,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import im.ene.toro.sample.R;
 import im.ene.toro.sample.basic.BasicListActivity;
+import im.ene.toro.sample.basic_ima.BasicImaListActivity;
 import im.ene.toro.sample.common.BaseFragment;
 import im.ene.toro.sample.complex.ComplexListActivity;
 import im.ene.toro.sample.facebook.FacebookDemoActivity;
@@ -143,6 +144,7 @@ public class IntroFragment extends BaseFragment {
 
   public enum Demo {
     BASIC("Basic List Demo", BasicListActivity.class),  //
+    BASIC_IMA("Basic IMA List Demo", BasicImaListActivity.class),  //
     TIMELINE("Facebook Timeline Demo", FacebookDemoActivity.class), //
     NESTED("Nested Container Demo", NestedListActivity.class),  //
     COMPLEX("Complicated Grid Demo", ComplexListActivity.class),  //
