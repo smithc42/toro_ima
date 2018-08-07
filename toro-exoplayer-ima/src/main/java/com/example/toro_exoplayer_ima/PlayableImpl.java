@@ -57,6 +57,7 @@ class PlayableImpl implements Playable {
   protected Set<ToroPlayer.OnVolumeChangeListener> volumeChangeListeners;
 
   protected final Uri mediaUri; // immutable, parcelable
+  protected final Uri adUri; // immutable, parcelable
   protected final String fileExt;
   protected final ExoCreator creator; // required, cached
 
@@ -66,9 +67,10 @@ class PlayableImpl implements Playable {
 
   private boolean listenerApplied = false;
 
-  PlayableImpl(ExoCreator creator, Uri uri, String fileExt) {
+  PlayableImpl(ExoCreator creator, Uri uri, Uri adUri, String fileExt) {
     this.creator = creator;
     this.mediaUri = uri;
+    this.adUri = adUri;
     this.fileExt = fileExt;
   }
 
@@ -259,7 +261,7 @@ class PlayableImpl implements Playable {
 
   private void ensureMediaSource() {
     if (mediaSource == null) {  // Only actually prepare the source when play() is called.
-      mediaSource = creator.createMediaSource(mediaUri, fileExt);
+      mediaSource = creator.createMediaSource(mediaUri, adUri, playerView, fileExt);
       player.prepare(mediaSource, playbackInfo.getResumeWindow() == C.INDEX_UNSET, false);
     }
   }

@@ -16,7 +16,6 @@
 
 package com.example.toro_exoplayer_ima;
 
-
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
@@ -24,15 +23,17 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.ContentType;
+import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
+import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 
 import static android.text.TextUtils.isEmpty;
@@ -46,50 +47,43 @@ import static com.google.android.exoplayer2.util.Util.inferContentType;
 public interface MediaSourceBuilder {
 
   @NonNull MediaSource buildMediaSource(@NonNull Context context, @NonNull Uri uri,
-      @Nullable String fileExt, @Nullable Handler handler,
+      @NonNull Uri adUri, @Nullable String fileExt, @Nullable Handler handler,
       @NonNull DataSource.Factory manifestDataSourceFactory,
       @NonNull DataSource.Factory mediaDataSourceFactory,
-      @Nullable MediaSourceEventListener listener);
+      @Nullable MediaSourceEventListener listener, ImaAdsLoader adsLoader, PlayerView playerView);
 
-  MediaSourceBuilder DEFAULT = new MediaSourceBuilder() {
+  MediaSourceBuilder ADVERT = new MediaSourceBuilder() {
     @NonNull @Override
     public MediaSource buildMediaSource(@NonNull Context context, @NonNull Uri uri,
-        @Nullable String ext, @Nullable Handler handler,
+        @NonNull Uri adUri, @Nullable String ext, @Nullable Handler handler,
         @NonNull DataSource.Factory manifestDataSourceFactory,
-        @NonNull DataSource.Factory mediaDataSourceFactory, MediaSourceEventListener listener) {
+        @NonNull DataSource.Factory mediaDataSourceFactory, MediaSourceEventListener listener,
+        ImaAdsLoader adsLoader, PlayerView playerView) {
       @ContentType int type = isEmpty(ext) ? inferContentType(uri) : inferContentType("." + ext);
+
+      MediaSource mediaSource = null;
       switch (type) {
         case C.TYPE_SS:
-          return new SsMediaSource.Factory( //
+          mediaSource = new SsMediaSource.Factory( //
               new DefaultSsChunkSource.Factory(mediaDataSourceFactory), manifestDataSourceFactory)//
               .createMediaSource(uri, handler, listener);
         case C.TYPE_DASH:
-          return new DashMediaSource.Factory(
+          mediaSource = new DashMediaSource.Factory(
               new DefaultDashChunkSource.Factory(mediaDataSourceFactory), manifestDataSourceFactory)
               .createMediaSource(uri, handler, listener);
         case C.TYPE_HLS:
-          return new HlsMediaSource.Factory(mediaDataSourceFactory) //
+          mediaSource = new HlsMediaSource.Factory(mediaDataSourceFactory) //
               .createMediaSource(uri, handler, listener);
         case C.TYPE_OTHER:
-          return new ExtractorMediaSource.Factory(mediaDataSourceFactory) //
+          mediaSource = new ExtractorMediaSource.Factory(mediaDataSourceFactory) //
               .createMediaSource(uri, handler, listener);
-        default:
-          throw new IllegalStateException("Unsupported type: " + type);
       }
-    }
-  };
 
-  MediaSourceBuilder LOOPING = new MediaSourceBuilder() {
-
-    @NonNull @Override
-    public MediaSource buildMediaSource(@NonNull Context context, @NonNull Uri uri,
-        @Nullable String fileExt, @Nullable Handler handler,
-        @NonNull DataSource.Factory manifestDataSourceFactory,
-        @NonNull DataSource.Factory mediaDataSourceFactory,
-        @Nullable MediaSourceEventListener listener) {
-      return new LoopingMediaSource(
-          DEFAULT.buildMediaSource(context, uri, fileExt, handler, manifestDataSourceFactory,
-              mediaDataSourceFactory, listener));
+      return new AdsMediaSource(mediaSource,
+          /* adMediaSourceFactory= */ new ImaAdsMediaSourceFactory(context), adsLoader,
+          playerView.getOverlayFrameLayout(),
+          /* eventHandler= */ null,
+          /* eventListener= */ null);
     }
   };
 }

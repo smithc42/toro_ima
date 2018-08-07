@@ -16,13 +16,13 @@
 
 package com.example.toro_exoplayer_ima;
 
-
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.ui.PlayerView;
 
 /**
  * A simple interface whose implementation helps Client to easily create {@link SimpleExoPlayer}
@@ -60,7 +60,8 @@ public interface ExoCreator {
    * @param fileExt the optional (File) extension of the media Uri.
    * @return a {@link MediaSource} for media {@link Uri}.
    */
-  @NonNull MediaSource createMediaSource(@NonNull Uri uri, @Nullable String fileExt);
+
+  @NonNull MediaSource createMediaSource(@NonNull Uri uri, @NonNull Uri adUri, @NonNull PlayerView playerView,  @Nullable String fileExt);
 
   // Client just needs the method below to work with Toro, but I prepare both 2 above for custom use-cases.
 
@@ -73,5 +74,5 @@ public interface ExoCreator {
    * @param fileExt the optional (File) extension of the media Uri.
    * @return the {@link Playable} to manage the media {@link Uri}.
    */
-  @NonNull Playable createPlayable(@NonNull Uri uri, @Nullable String fileExt);
+  @NonNull Playable createPlayable(@NonNull Uri uri, @NonNull Uri adUri, @Nullable String fileExt);
 }

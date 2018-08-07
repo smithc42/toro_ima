@@ -25,10 +25,12 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -118,13 +120,16 @@ public class DefaultExoCreator implements ExoCreator, MediaSourceEventListener {
     return new ToroExoPlayer(renderersFactory, trackSelector, loadControl);
   }
 
-  @NonNull @Override public MediaSource createMediaSource(@NonNull Uri uri, String fileExt) {
-    return mediaSourceBuilder.buildMediaSource(this.toro.context, uri, fileExt, new Handler(),
-        manifestDataSourceFactory, mediaDataSourceFactory, this);
+  @NonNull @Override public MediaSource createMediaSource(@NonNull Uri uri, @NonNull Uri adUri,
+      @NonNull PlayerView playerView, @Nullable String fileExt) {
+    return mediaSourceBuilder.buildMediaSource(this.toro.context, uri, adUri, fileExt,
+        new Handler(), manifestDataSourceFactory, mediaDataSourceFactory, this,
+        new ImaAdsLoader(toro.context, adUri), playerView);
   }
 
-  @NonNull @Override public Playable createPlayable(@NonNull Uri uri, String fileExt) {
-    return new PlayableImpl(this, uri, fileExt);
+  @NonNull @Override
+  public Playable createPlayable(@NonNull Uri uri, @NonNull Uri adUri, String fileExt) {
+    return new PlayableImpl(this, uri, adUri, fileExt);
   }
 
   /// MediaSourceEventListener

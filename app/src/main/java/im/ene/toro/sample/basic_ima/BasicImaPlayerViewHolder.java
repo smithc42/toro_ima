@@ -22,11 +22,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.example.toro_exoplayer_ima.ExoImaPlayerViewHelper;
 import com.google.android.exoplayer2.ui.PlayerView;
 import im.ene.toro.ToroPlayer;
 import im.ene.toro.ToroUtil;
 import im.ene.toro.exoplayer.ExoPlayerViewHelper;
-import im.ene.toro.helper.ToroPlayerHelper;
 import im.ene.toro.media.PlaybackInfo;
 import im.ene.toro.sample.R;
 import im.ene.toro.widget.Container;
@@ -37,7 +37,7 @@ public class BasicImaPlayerViewHolder extends RecyclerView.ViewHolder implements
 
   static final int LAYOUT_RES = R.layout.view_holder_exoplayer_basic;
 
-  ToroPlayerHelper helper;
+  ExoImaPlayerViewHelper helper;
   Uri mediaUri;
 
   @BindView(R.id.player) PlayerView playerView;
@@ -58,7 +58,7 @@ public class BasicImaPlayerViewHolder extends RecyclerView.ViewHolder implements
   @Override
   public void initialize(@NonNull Container container, @NonNull PlaybackInfo playbackInfo) {
     if (helper == null) {
-      helper = new ExoPlayerViewHelper(this, mediaUri);
+      helper = new ExoImaPlayerViewHelper(this, mediaUri, Uri.parse("https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpreonly&cmsid=496&vid=short_onecue&correlator="));
     }
     helper.initialize(container, playbackInfo);
   }

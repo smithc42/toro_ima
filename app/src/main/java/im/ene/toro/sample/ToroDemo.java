@@ -17,6 +17,7 @@
 package im.ene.toro.sample;
 
 import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 import com.squareup.leakcanary.LeakCanary;
 import im.ene.toro.exoplayer.ToroExo;
 
@@ -24,7 +25,7 @@ import im.ene.toro.exoplayer.ToroExo;
  * @author eneim | 6/5/17.
  */
 
-public class ToroDemo extends Application {
+public class ToroDemo extends MultiDexApplication {
 
   private static ToroDemo singleton;
 

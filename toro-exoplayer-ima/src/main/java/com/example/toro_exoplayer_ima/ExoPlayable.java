@@ -16,8 +16,6 @@
 
 package com.example.toro_exoplayer_ima;
 
-
-import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -35,8 +33,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.PlayerView;
 
+import static com.example.toro_exoplayer_ima.ToroExo.toro;
 import static com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS;
-import static im.ene.toro.exoplayer.ToroExo.toro;
 
 /**
  * Making {@link Playable} extensible. This can be used with custom {@link ExoCreator}. Extending
@@ -65,8 +63,8 @@ public class ExoPlayable extends PlayableImpl {
    * @param uri the {@link Uri} of the media.
    * @param fileExt the custom extension of the media Uri.
    */
-  public ExoPlayable(ExoCreator creator, Uri uri, String fileExt) {
-    super(creator, uri, fileExt);
+  public ExoPlayable(ExoCreator creator, Uri uri, Uri adUri, String fileExt) {
+    super(creator, uri, adUri, fileExt);
   }
 
   @Override public void prepare(boolean prepareSource) {

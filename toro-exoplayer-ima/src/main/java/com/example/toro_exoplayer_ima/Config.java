@@ -119,7 +119,7 @@ public final class Config {
     private BaseMeter meter = new BaseMeter(bandwidthMeter, bandwidthMeter);
     private LoadControl loadControl = new DefaultLoadControl();
     private DataSource.Factory dataSourceFactory = null;
-    private MediaSourceBuilder mediaSourceBuilder = MediaSourceBuilder.DEFAULT;
+    private MediaSourceBuilder mediaSourceBuilder = MediaSourceBuilder.ADVERT;
     private DrmSessionManager[] drmSessionManagers = null;
     private Cache cache = null;
 
