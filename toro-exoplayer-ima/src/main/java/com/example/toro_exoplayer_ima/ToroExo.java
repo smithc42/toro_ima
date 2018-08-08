@@ -19,6 +19,7 @@ package com.example.toro_exoplayer_ima;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -27,6 +28,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.StringRes;
 import android.support.v4.util.Pools;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
@@ -35,6 +37,7 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
+import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
@@ -95,6 +98,8 @@ public final class ToroExo {
   @NonNull final Context context;  // Application context
   @NonNull private final Map<Config, ExoCreator> creators;
   @NonNull private final Map<ExoCreator, Pools.Pool<SimpleExoPlayer>> playerPools;
+  @NonNull private final Map<ExoCreator, Pools.Pool<ImaAdsLoader>> adLoaderPools;
+  @NonNull private final Map<ExoCreator, Pools.Pool<ImaAdsMediaSourceFactory>> imaAdsMediaSourceFactoryPools;
 
   private Config defaultConfig; // will be created on the first time it is used.
 
@@ -102,6 +107,8 @@ public final class ToroExo {
     this.context = context;
     this.appName = getUserAgent(context, BuildConfig.LIB_NAME);
     this.playerPools = new HashMap<>();
+    this.adLoaderPools = new HashMap<>();
+    this.imaAdsMediaSourceFactoryPools = new HashMap<>();
     this.creators = new HashMap<>();
 
     // Adapt from ExoPlayer demo app. Start this on demand.
@@ -154,6 +161,26 @@ public final class ToroExo {
     return player;
   }
 
+  @NonNull  //
+  public final ImaAdsLoader requestImaAdsLoader(@NonNull ExoCreator creator, @NonNull Uri adUri) {
+    ImaAdsLoader imaAdsLoader = getAdLoaderPool(checkNotNull(creator)).acquire();
+    if (imaAdsLoader == null) {
+      Log.d("heyhey", "creating new ads loader");
+      imaAdsLoader = creator.createAdsLoader(adUri);
+    }
+    return imaAdsLoader;
+  }
+
+  @NonNull  //
+  public final ImaAdsMediaSourceFactory requestImaAdsMediaSourceFactory(@NonNull ExoCreator creator) {
+    ImaAdsMediaSourceFactory imaAdsLoaderSourceFactory = getImaAdsMediaSourceFactoryPool(checkNotNull(creator)).acquire();
+    if (imaAdsLoaderSourceFactory == null) {
+      Log.d("heyhey", "creating new ads loader");
+      imaAdsLoaderSourceFactory = creator.createImaAdsMediaSourceFactory();
+    }
+    return imaAdsLoaderSourceFactory;
+  }
+
   /**
    * Release player to Pool attached to the creator.
    *
@@ -164,6 +191,20 @@ public final class ToroExo {
   @SuppressWarnings({ "WeakerAccess", "UnusedReturnValue" }) //
   public final boolean releasePlayer(@NonNull ExoCreator creator, @NonNull SimpleExoPlayer player) {
     return getPool(checkNotNull(creator)).release(player);
+  }
+
+  @SuppressWarnings({ "WeakerAccess", "UnusedReturnValue" }) //
+  public final boolean releaseAdsLoader(@NonNull ExoCreator creator,
+      @NonNull ImaAdsLoader imaAdsLoader) {
+    Log.d("heyhey", "Releaing ads loader");
+    return getAdLoaderPool(checkNotNull(creator)).release(imaAdsLoader);
+  }
+
+  @SuppressWarnings({ "WeakerAccess", "UnusedReturnValue" }) //
+  public final boolean releaseImaAdsMediaSourceFactory(@NonNull ExoCreator creator,
+      @NonNull ImaAdsMediaSourceFactory imaAdsMediaSourceFactory) {
+    Log.d("heyhey", "Releaing ads loader");
+    return getImaAdsMediaSourceFactoryPool(checkNotNull(creator)).release(imaAdsMediaSourceFactory);
   }
 
   /**
@@ -179,6 +220,13 @@ public final class ToroExo {
       while ((item = pool.acquire()) != null) item.release();
       it.remove();
     }
+    for (Iterator<Map.Entry<ExoCreator, Pools.Pool<ImaAdsLoader>>> it =
+        adLoaderPools.entrySet().iterator(); it.hasNext(); ) {
+      Pools.Pool<ImaAdsLoader> pool = it.next().getValue();
+      ImaAdsLoader item;
+      while ((item = pool.acquire()) != null) item.release();
+      it.remove();
+    }
   }
 
   /// internal APIs
@@ -187,6 +235,26 @@ public final class ToroExo {
     if (pool == null) {
       pool = new Pools.SimplePool<>(MAX_POOL_SIZE);
       playerPools.put(creator, pool);
+    }
+
+    return pool;
+  }
+
+  private Pools.Pool<ImaAdsLoader> getAdLoaderPool(ExoCreator creator) {
+    Pools.Pool<ImaAdsLoader> pool = adLoaderPools.get(creator);
+    if (pool == null) {
+      pool = new Pools.SimplePool<>(MAX_POOL_SIZE);
+      adLoaderPools.put(creator, pool);
+    }
+
+    return pool;
+  }
+
+  private Pools.Pool<ImaAdsMediaSourceFactory> getImaAdsMediaSourceFactoryPool(ExoCreator creator) {
+    Pools.Pool<ImaAdsMediaSourceFactory> pool = imaAdsMediaSourceFactoryPools.get(creator);
+    if (pool == null) {
+      pool = new Pools.SimplePool<>(MAX_POOL_SIZE);
+      imaAdsMediaSourceFactoryPools.put(creator, pool);
     }
 
     return pool;

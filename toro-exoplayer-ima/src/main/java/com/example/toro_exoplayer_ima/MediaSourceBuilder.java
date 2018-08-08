@@ -23,6 +23,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.ContentType;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -35,6 +36,8 @@ import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
+import java.io.IOException;
 
 import static android.text.TextUtils.isEmpty;
 import static com.google.android.exoplayer2.util.Util.inferContentType;
@@ -50,7 +53,9 @@ public interface MediaSourceBuilder {
       @NonNull Uri adUri, @Nullable String fileExt, @Nullable Handler handler,
       @NonNull DataSource.Factory manifestDataSourceFactory,
       @NonNull DataSource.Factory mediaDataSourceFactory,
-      @Nullable MediaSourceEventListener listener, ImaAdsLoader adsLoader, PlayerView playerView);
+      @Nullable MediaSourceEventListener listener,
+      ImaAdsMediaSourceFactory imaAdsMediaSourceFactory, ImaAdsLoader adsLoader,
+      PlayerView playerView);
 
   MediaSourceBuilder ADVERT = new MediaSourceBuilder() {
     @NonNull @Override
@@ -58,7 +63,8 @@ public interface MediaSourceBuilder {
         @NonNull Uri adUri, @Nullable String ext, @Nullable Handler handler,
         @NonNull DataSource.Factory manifestDataSourceFactory,
         @NonNull DataSource.Factory mediaDataSourceFactory, MediaSourceEventListener listener,
-        ImaAdsLoader adsLoader, PlayerView playerView) {
+        ImaAdsMediaSourceFactory imaAdsMediaSourceFactory, ImaAdsLoader adsLoader,
+        PlayerView playerView) {
       @ContentType int type = isEmpty(ext) ? inferContentType(uri) : inferContentType("." + ext);
 
       MediaSource mediaSource = null;
@@ -67,20 +73,24 @@ public interface MediaSourceBuilder {
           mediaSource = new SsMediaSource.Factory( //
               new DefaultSsChunkSource.Factory(mediaDataSourceFactory), manifestDataSourceFactory)//
               .createMediaSource(uri, handler, listener);
+          break;
         case C.TYPE_DASH:
           mediaSource = new DashMediaSource.Factory(
               new DefaultDashChunkSource.Factory(mediaDataSourceFactory), manifestDataSourceFactory)
               .createMediaSource(uri, handler, listener);
+          break;
         case C.TYPE_HLS:
           mediaSource = new HlsMediaSource.Factory(mediaDataSourceFactory) //
               .createMediaSource(uri, handler, listener);
+          break;
         case C.TYPE_OTHER:
           mediaSource = new ExtractorMediaSource.Factory(mediaDataSourceFactory) //
               .createMediaSource(uri, handler, listener);
+          break;
       }
 
       return new AdsMediaSource(mediaSource,
-          /* adMediaSourceFactory= */ new ImaAdsMediaSourceFactory(context), adsLoader,
+          /* adMediaSourceFactory= */ imaAdsMediaSourceFactory, adsLoader,
           playerView.getOverlayFrameLayout(),
           /* eventHandler= */ null,
           /* eventListener= */ null);

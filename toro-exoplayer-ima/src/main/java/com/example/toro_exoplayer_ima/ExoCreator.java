@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 
@@ -53,6 +54,10 @@ public interface ExoCreator {
    */
   @NonNull SimpleExoPlayer createPlayer();
 
+  @NonNull ImaAdsLoader createAdsLoader(@NonNull Uri adUri);
+
+  @NonNull ImaAdsMediaSourceFactory createImaAdsMediaSourceFactory();
+
   /**
    * Create a {@link MediaSource} from media {@link Uri}.
    *
@@ -61,7 +66,9 @@ public interface ExoCreator {
    * @return a {@link MediaSource} for media {@link Uri}.
    */
 
-  @NonNull MediaSource createMediaSource(@NonNull Uri uri, @NonNull Uri adUri, @NonNull PlayerView playerView,  @Nullable String fileExt);
+  @NonNull MediaSource createMediaSource(@NonNull Uri uri, @NonNull Uri adUri,
+      @NonNull PlayerView playerView, ImaAdsMediaSourceFactory imaAdsMediaSourceFactory,
+      @NonNull ImaAdsLoader imaAdsLoader, @Nullable String fileExt);
 
   // Client just needs the method below to work with Toro, but I prepare both 2 above for custom use-cases.
 

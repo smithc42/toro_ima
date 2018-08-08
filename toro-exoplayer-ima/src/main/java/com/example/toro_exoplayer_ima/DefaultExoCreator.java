@@ -120,11 +120,20 @@ public class DefaultExoCreator implements ExoCreator, MediaSourceEventListener {
     return new ToroExoPlayer(renderersFactory, trackSelector, loadControl);
   }
 
+  @NonNull @Override public ImaAdsLoader createAdsLoader(@NonNull Uri adUri) {
+    return new ImaAdsLoader(toro.context, adUri);
+  }
+
+  @NonNull @Override public ImaAdsMediaSourceFactory createImaAdsMediaSourceFactory() {
+    return new ImaAdsMediaSourceFactory(toro.context);
+  }
+
   @NonNull @Override public MediaSource createMediaSource(@NonNull Uri uri, @NonNull Uri adUri,
-      @NonNull PlayerView playerView, @Nullable String fileExt) {
+      @NonNull PlayerView playerView, ImaAdsMediaSourceFactory imaAdsMediaSourceFactory,
+      @NonNull ImaAdsLoader imaAdsLoader, @Nullable String fileExt) {
     return mediaSourceBuilder.buildMediaSource(this.toro.context, uri, adUri, fileExt,
         new Handler(), manifestDataSourceFactory, mediaDataSourceFactory, this,
-        new ImaAdsLoader(toro.context, adUri), playerView);
+        imaAdsMediaSourceFactory, imaAdsLoader, playerView);
   }
 
   @NonNull @Override

@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import im.ene.toro.ToroPlayer;
@@ -62,6 +63,8 @@ class PlayableImpl implements Playable {
   protected final ExoCreator creator; // required, cached
 
   protected SimpleExoPlayer player; // on-demand, cached
+  protected ImaAdsLoader imaAdsLoader; // on-demand, cached
+  protected ImaAdsMediaSourceFactory imaAdsMediaSourceFactory; // on-demand, cached
   protected MediaSource mediaSource;  // on-demand
   protected PlayerView playerView; // on-demand, not always required.
 
@@ -83,6 +86,18 @@ class PlayableImpl implements Playable {
           ((ToroExoPlayer) player).addOnVolumeChangeListener(listener);
         }
       }
+    }
+
+    if (imaAdsMediaSourceFactory == null) {
+      imaAdsMediaSourceFactory =
+          ToroExo.with(checkNotNull(creator.getContext(), "ExoCreator has no Context")) //
+              .requestImaAdsMediaSourceFactory(creator);
+    }
+
+    if (imaAdsLoader == null) {
+      imaAdsLoader =
+          ToroExo.with(checkNotNull(creator.getContext(), "ExoCreator has no Context")) //
+              .requestImaAdsLoader(creator, adUri);
     }
 
     if (!listenerApplied) {
@@ -157,6 +172,10 @@ class PlayableImpl implements Playable {
       }
       ToroExo.with(checkNotNull(creator.getContext(), "ExoCreator has no Context")) //
           .releasePlayer(this.creator, this.player);
+      ToroExo.with(checkNotNull(creator.getContext(), "ExoCreator has no Context")) //
+          .releaseAdsLoader(this.creator, this.imaAdsLoader);
+      ToroExo.with(checkNotNull(creator.getContext(), "ExoCreator has no Context")) //
+          .releaseImaAdsMediaSourceFactory(this.creator, this.imaAdsMediaSourceFactory);
     }
     this.player = null;
     this.mediaSource = null;
@@ -249,7 +268,7 @@ class PlayableImpl implements Playable {
 
   final void updatePlaybackInfo() {
     if (player == null || player.getPlaybackState() == Player.STATE_IDLE) return;
-    playbackInfo.setResumeWindow(player.getCurrentWindowIndex());
+    //playbackInfo.setResumeWindow(player.getCurrentWindowIndex());
     playbackInfo.setResumePosition(player.isCurrentWindowSeekable() ? //
         Math.max(0, player.getCurrentPosition()) : TIME_UNSET);
     playbackInfo.setVolumeInfo(ToroExo.getVolumeInfo(player));
@@ -261,7 +280,8 @@ class PlayableImpl implements Playable {
 
   private void ensureMediaSource() {
     if (mediaSource == null) {  // Only actually prepare the source when play() is called.
-      mediaSource = creator.createMediaSource(mediaUri, adUri, playerView, fileExt);
+      mediaSource = creator.createMediaSource(mediaUri, adUri, playerView, imaAdsMediaSourceFactory,
+          imaAdsLoader, fileExt);
       player.prepare(mediaSource, playbackInfo.getResumeWindow() == C.INDEX_UNSET, false);
     }
   }
