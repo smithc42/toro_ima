@@ -165,7 +165,6 @@ public final class ToroExo {
   public final ImaAdsLoader requestImaAdsLoader(@NonNull ExoCreator creator, @NonNull Uri adUri) {
     ImaAdsLoader imaAdsLoader = getAdLoaderPool(checkNotNull(creator)).acquire();
     if (imaAdsLoader == null) {
-      Log.d("heyhey", "creating new ads loader");
       imaAdsLoader = creator.createAdsLoader(adUri);
     }
     return imaAdsLoader;
@@ -175,7 +174,6 @@ public final class ToroExo {
   public final ImaAdsMediaSourceFactory requestImaAdsMediaSourceFactory(@NonNull ExoCreator creator) {
     ImaAdsMediaSourceFactory imaAdsLoaderSourceFactory = getImaAdsMediaSourceFactoryPool(checkNotNull(creator)).acquire();
     if (imaAdsLoaderSourceFactory == null) {
-      Log.d("heyhey", "creating new ads loader");
       imaAdsLoaderSourceFactory = creator.createImaAdsMediaSourceFactory();
     }
     return imaAdsLoaderSourceFactory;
@@ -196,14 +194,12 @@ public final class ToroExo {
   @SuppressWarnings({ "WeakerAccess", "UnusedReturnValue" }) //
   public final boolean releaseAdsLoader(@NonNull ExoCreator creator,
       @NonNull ImaAdsLoader imaAdsLoader) {
-    Log.d("heyhey", "Releaing ads loader");
     return getAdLoaderPool(checkNotNull(creator)).release(imaAdsLoader);
   }
 
   @SuppressWarnings({ "WeakerAccess", "UnusedReturnValue" }) //
   public final boolean releaseImaAdsMediaSourceFactory(@NonNull ExoCreator creator,
       @NonNull ImaAdsMediaSourceFactory imaAdsMediaSourceFactory) {
-    Log.d("heyhey", "Releaing ads loader");
     return getImaAdsMediaSourceFactoryPool(checkNotNull(creator)).release(imaAdsMediaSourceFactory);
   }
 

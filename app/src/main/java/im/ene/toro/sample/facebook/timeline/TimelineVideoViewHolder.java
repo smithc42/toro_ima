@@ -19,14 +19,16 @@ package im.ene.toro.sample.facebook.timeline;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import butterknife.BindView;
+import com.example.toro_exoplayer_ima.ExoImaPlayerViewHelper;
+import com.example.toro_exoplayer_ima.Playable;
 import com.google.android.exoplayer2.ui.PlayerView;
 import im.ene.toro.ToroPlayer;
 import im.ene.toro.ToroUtil;
 import im.ene.toro.exoplayer.ExoPlayerViewHelper;
-import im.ene.toro.exoplayer.Playable;
 import im.ene.toro.media.PlaybackInfo;
 import im.ene.toro.sample.R;
 import im.ene.toro.sample.common.MediaUrl;
@@ -54,7 +56,7 @@ public class TimelineVideoViewHolder extends TimelineViewHolder implements ToroP
       state.setText(format(Locale.getDefault(), "STATE: %d・PWR: %s", playbackState, playWhenReady));
     }
   };
-  @Nullable private ExoPlayerViewHelper helper;
+  @Nullable private ExoImaPlayerViewHelper helper;
   @Nullable private Uri mediaUri;
 
   TimelineVideoViewHolder(View itemView) {
@@ -89,7 +91,7 @@ public class TimelineVideoViewHolder extends TimelineViewHolder implements ToroP
   public void initialize(@NonNull Container container, @NonNull PlaybackInfo playbackInfo) {
     if (mediaUri == null) throw new IllegalStateException("mediaUri is null.");
     if (helper == null) {
-      helper = new ExoPlayerViewHelper(this, mediaUri);
+      helper = new ExoImaPlayerViewHelper(this, mediaUri,  Uri.parse("https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="));
       helper.addEventListener(listener);
     }
     helper.initialize(container, playbackInfo);

@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
@@ -268,9 +269,9 @@ class PlayableImpl implements Playable {
 
   final void updatePlaybackInfo() {
     if (player == null || player.getPlaybackState() == Player.STATE_IDLE) return;
-    //playbackInfo.setResumeWindow(player.getCurrentWindowIndex());
-    playbackInfo.setResumePosition(player.isCurrentWindowSeekable() ? //
-        Math.max(0, player.getCurrentPosition()) : TIME_UNSET);
+    playbackInfo.setResumeWindow(player.getCurrentWindowIndex());
+    playbackInfo.setResumePosition(
+        player.isCurrentWindowSeekable() ? Math.max(0, player.getCurrentPosition()) : TIME_UNSET);
     playbackInfo.setVolumeInfo(ToroExo.getVolumeInfo(player));
   }
 
